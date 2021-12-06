@@ -1,18 +1,35 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-jsi-module';
+import { StyleSheet, View, Text, Button } from 'react-native';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [count, setCount] = React.useState(0);
 
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
+    (global as any).testThread().then((n: number) => {
+      console.log('value', n);
+      setCount(n);
+    });
+  }, [setCount]);
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: {(global as any).helloWorld()}</Text>
+      <Text>Click count: {count}</Text>
+      <Button onPress={() => setCount(count + 1)} title="button">
+        <Text>Click me</Text>
+      </Button>
+      <Button
+        onPress={() =>
+          (global as any).testThread().then((n: number) => {
+            console.log('xxx', n);
+            setCount(n);
+          })
+        }
+        title="test button"
+      >
+        <Text>Special button</Text>
+      </Button>
     </View>
   );
 }
@@ -22,6 +39,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
   },
   box: {
     width: 60,
